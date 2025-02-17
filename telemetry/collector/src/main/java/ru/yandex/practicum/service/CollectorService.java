@@ -142,6 +142,8 @@ public class CollectorService {
 
         try (Producer<String, T> producer = new KafkaProducer<>(config)) {
             producer.send(record);
+            producer.flush();
+            producer.close();
         }
     }
 }
