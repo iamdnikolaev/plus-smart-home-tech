@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service.handler.hub;
 
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceRemovedEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
@@ -7,6 +8,7 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 
 import java.time.Instant;
 
+@Component
 public class DeviceRemovedEventHandler extends HubProtoHandler {
     @Override
     public HubEventProto.PayloadCase getMessageType() {

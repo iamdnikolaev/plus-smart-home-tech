@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service.handler.sensor;
 
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.MotionSensorProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.kafka.telemetry.event.MotionSensorAvro;
@@ -7,6 +8,7 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 
 import java.time.Instant;
 
+@Component
 public class MotionSensorEventHandler extends SensorProtoHandler {
     @Override
     public SensorEventProto.PayloadCase getMessageType() {
