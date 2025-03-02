@@ -13,7 +13,7 @@ public abstract class HubProtoHandler implements HubEventHandler {
     private String topicTelemetryHubs;
 
     @Autowired
-    private static CollectorService service;
+    private CollectorService service;
 
     @Override
     public void handle(HubEventProto eventProto) {
