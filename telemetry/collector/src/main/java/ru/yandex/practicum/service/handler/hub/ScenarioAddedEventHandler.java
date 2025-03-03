@@ -39,8 +39,10 @@ public class ScenarioAddedEventHandler extends HubProtoHandler {
 
         ScenarioAddedEventAvro scenarioAddedEventAvro = ScenarioAddedEventAvro.newBuilder()
                 .setName(scenarioAddedEventProto.getName())
+                .setConditions(scenarioConditionAvroList)
+                .setActions(deviceActionAvroList)
                 .build();
-        log.info("built scenarioAddedEventAvro = {}", scenarioAddedEventAvro);
+        log.info("<== scenarioAddedEventAvro = {}", scenarioAddedEventAvro);
 
         return HubEventAvro.newBuilder()
                 .setHubId(eventProto.getHubId())
