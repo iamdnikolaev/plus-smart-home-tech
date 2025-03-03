@@ -1,5 +1,6 @@
 package ru.yandex.practicum.service.handler.hub;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Component
+@Slf4j
 public class ScenarioAddedEventHandler extends HubProtoHandler {
     @Override
     public HubEventProto.PayloadCase getMessageType() {
@@ -25,16 +27,20 @@ public class ScenarioAddedEventHandler extends HubProtoHandler {
 
     public HubEventAvro mapToAvro(HubEventProto eventProto) {
         ScenarioAddedEventProto scenarioAddedEventProto = eventProto.getScenarioAdded();
+        log.info("==> scenarioAddedEventProto = {}", scenarioAddedEventProto);
 
         List<ScenarioConditionAvro> scenarioConditionAvroList = scenarioAddedEventProto.getConditionList()
                 .stream().map(this::mapToScenarioConditionAvro).toList();
+        log.info("map to scenarioConditionAvroList = {}", scenarioConditionAvroList);
 
         List<DeviceActionAvro> deviceActionAvroList = scenarioAddedEventProto.getActionList()
                 .stream().map(this::mapToDeviceActionAvro).toList();
+        log.info("map to deviceActionAvroList = {}", deviceActionAvroList);
 
         ScenarioAddedEventAvro scenarioAddedEventAvro = ScenarioAddedEventAvro.newBuilder()
                 .setName(scenarioAddedEventProto.getName())
                 .build();
+        log.info("built scenarioAddedEventAvro = {}", scenarioAddedEventAvro);
 
         return HubEventAvro.newBuilder()
                 .setHubId(eventProto.getHubId())

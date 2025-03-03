@@ -20,6 +20,7 @@ public abstract class HubProtoHandler implements HubEventHandler {
         log.info("==> handle hub eventProto = {}", eventProto);
         HubEventAvro eventAvro = mapToAvro(eventProto);
 
+        log.info("<== map for send to eventAvro = {}", eventAvro);
         service.sendEvent(eventAvro, topicTelemetryHubs, eventAvro.getHubId());
     }
 
