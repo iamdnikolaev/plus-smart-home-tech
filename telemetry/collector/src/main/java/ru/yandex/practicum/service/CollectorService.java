@@ -131,7 +131,7 @@ public class CollectorService {
     }
 
     public <T> void sendEvent(T event, String topic, String hubId) {
-        log.info("==> send event = {}", event);
+        log.info("==> send event = {}, topic = {}, hubId = {}", event, topic, hubId);
 
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServerAddress);
