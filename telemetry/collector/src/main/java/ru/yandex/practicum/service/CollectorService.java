@@ -131,7 +131,7 @@ public class CollectorService {
     }
 
     public <T> void sendEvent(T event, String topic, String hubId) {
-        log.info("==> send event = {}, topic = {}, hubId = {}", event, topic, hubId);
+        log.info("==> Send event = {}, topic = {}, hubId = {}", event, topic, hubId);
 
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServerAddress);
@@ -141,6 +141,7 @@ public class CollectorService {
         ProducerRecord<String, T> record = new ProducerRecord<>(topic, hubId, event);
 
         try (Producer<String, T> producer = new KafkaProducer<>(config)) {
+            log.info("<== Send the event in partition = {}", record.partition());
             producer.send(record);
             producer.flush();
             producer.close();

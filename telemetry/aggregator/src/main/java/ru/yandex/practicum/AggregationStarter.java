@@ -42,6 +42,7 @@ public class AggregationStarter {
                 ConsumerRecords<String, SensorEventAvro> records = kafkaConsumer.poll(consumeAttemptTimeout);
 
                 for (ConsumerRecord<String, SensorEventAvro> record : records) {
+                    log.info("== Polling cycle iteration on records. Partition = {}, Offset = {}", record.partition(), record.offset());
                     SensorEventAvro event = record.value();
                     Optional<SensorsSnapshotAvro> sensorsSnapshotAvro = updateState(event);
 
@@ -54,7 +55,7 @@ public class AggregationStarter {
                                         snapshotAvro.getHubId(),
                                         snapshotAvro);
                         kafkaProducer.send(producerRecord);
-                        log.info("snapshotAvro {} has sent on topic {}", snapshotAvro, topicTelemetrySnapshots);
+                        log.info("<== Has been sent on topic {} partition {} - the snapshotAvro {}", topicTelemetrySnapshots, producerRecord.partition(), snapshotAvro);
                     }
                 }
                 kafkaConsumer.commitAsync();
