@@ -96,7 +96,7 @@ public class AggregationStarter {
         Map<String, SensorStateAvro> sensorsState = snapshot.getSensorsState();
         SensorStateAvro oldState = sensorsState.get(eventId);
         if (oldState != null && oldState.getTimestamp().isAfter(event.getTimestamp())
-                && oldState.getData().equals(event.getPayload())) {
+                || oldState.getData().equals(event.getPayload())) {
             return Optional.empty();
         }
 
