@@ -30,6 +30,7 @@ public class AggregatorConfig {
         properties.put(ConsumerConfig.CLIENT_ID_CONFIG, aggregatorClientId);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SensorEventDeserializer.class);
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         return new KafkaConsumer<>(properties);
     }
 
