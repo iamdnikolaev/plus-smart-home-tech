@@ -24,11 +24,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class AggregationStarter {
-    private Duration consumeAttemptTimeout = Duration.ofMillis(1000);
+    private final Duration consumeAttemptTimeout = Duration.ofMillis(100);
     @Value("${topic.telemetry.sensors}")
-    private String topicTelemetrySensors;
+    String topicTelemetrySensors;
     @Value("${topic.telemetry.snapshots}")
-    private String topicTelemetrySnapshots;
+    String topicTelemetrySnapshots;
 
     private final KafkaConsumer<String, SensorEventAvro> kafkaConsumer;
     private final KafkaProducer<String, SensorsSnapshotAvro> kafkaProducer;
@@ -64,15 +64,15 @@ public class AggregationStarter {
         } catch (WakeupException ignored) {
 
         } catch (Exception e) {
-            log.warn("Sensor events have got an error", e);
+            log.warn("Sensor event processor have got an error", e);
         } finally {
             try {
                 kafkaProducer.flush();
                 kafkaConsumer.commitSync();
             } finally {
-                log.info("Consumer is closing");
+                log.info("Aggregator consumer is closing");
                 kafkaConsumer.close();
-                log.info("Producer is closing");
+                log.info("Aggregator producer is closing");
                 kafkaProducer.close();
             }
         }
