@@ -25,7 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SnapshotProcessor implements Runnable {
     @Value("${kafka.snapshot-consumer.attempt-timeout}")
-    Integer attemptTimeout;
+    int attemptTimeout;
     @Value("${kafka.snapshot-consumer.topics}")
     String topicTelemetrySnapshots;
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();

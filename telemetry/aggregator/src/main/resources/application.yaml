@@ -8,3 +8,4 @@ topic:
 
 kafka:
   bootstrap-servers: localhost:9092
+  attempt-timeout: 100

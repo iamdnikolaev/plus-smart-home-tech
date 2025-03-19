@@ -24,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class HubEventProcessor implements Runnable {
     @Value("${kafka.hub-consumer.attempt-timeout}")
-    Integer attemptTimeout;
+    int attemptTimeout;
     @Value("${kafka.hub-consumer.topics}")
     String topicTelemetryHubs;
 

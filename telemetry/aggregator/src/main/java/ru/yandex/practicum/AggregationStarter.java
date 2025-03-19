@@ -24,7 +24,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class AggregationStarter {
-    private final Duration consumeAttemptTimeout = Duration.ofMillis(100);
+    @Value("${kafka.attempt-timeout}")
+    int attemptTimeout;
     @Value("${topic.telemetry.sensors}")
     String topicTelemetrySensors;
     @Value("${topic.telemetry.snapshots}")
@@ -39,7 +40,7 @@ public class AggregationStarter {
             kafkaConsumer.subscribe(List.of(topicTelemetrySensors));
 
             while (true) {
-                ConsumerRecords<String, SensorEventAvro> records = kafkaConsumer.poll(consumeAttemptTimeout);
+                ConsumerRecords<String, SensorEventAvro> records = kafkaConsumer.poll(Duration.ofMillis(attemptTimeout));
 
                 for (ConsumerRecord<String, SensorEventAvro> record : records) {
                     log.info("== Polling cycle iteration on records. Partition = {}, Offset = {}", record.partition(), record.offset());
