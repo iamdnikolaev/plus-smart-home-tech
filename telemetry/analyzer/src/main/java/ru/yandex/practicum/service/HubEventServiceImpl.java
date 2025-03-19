@@ -22,15 +22,16 @@ import java.util.stream.Collectors;
 @Service
 public class HubEventServiceImpl implements HubEventService {
 
-    private ScenarioExecutor scenarioExecutor;
+    private final ScenarioExecutor scenarioExecutor;
     private final Map<String, HubEventHandler> hubEventHandlers;
 
-    public HubEventServiceImpl(Set<HubEventHandler> hubEventHandlers) {
+    public HubEventServiceImpl(Set<HubEventHandler> hubEventHandlers, ScenarioExecutor scenarioExecutor) {
         this.hubEventHandlers = hubEventHandlers.stream()
                 .collect(Collectors.toMap(
                         HubEventHandler::getEventType,
                         Function.identity()
                 ));
+        this.scenarioExecutor = scenarioExecutor;
     }
 
     @Override

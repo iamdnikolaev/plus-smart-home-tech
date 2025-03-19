@@ -51,7 +51,7 @@ public class AnalyzerServiceImpl implements AnalyzerService {
     }
 
     private boolean checkConditions(Map<String, Condition> conditions, Map<String, SensorStateAvro> sensorStates) {
-        log.info("==> checkConditions: conditions {}, sensorStates {}", conditions, sensorStates);
+        log.info("==> checkConditions: sensorStates {}", sensorStates);
         if (conditions == null || conditions.isEmpty()) {
             log.info("No conditions to check");
             return true; // Если условий нет, считаем, что они выполнены
