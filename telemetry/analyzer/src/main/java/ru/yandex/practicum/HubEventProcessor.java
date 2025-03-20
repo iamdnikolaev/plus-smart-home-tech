@@ -1,6 +1,5 @@
 package ru.yandex.practicum;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -21,7 +20,6 @@ import java.util.Map;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class HubEventProcessor implements Runnable {
     @Value("${kafka.hub-consumer.attempt-timeout}")
     int attemptTimeout;
@@ -32,9 +30,14 @@ public class HubEventProcessor implements Runnable {
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
     private final HubEventService service;
 
+    public HubEventProcessor(KafkaConsumer<String, HubEventAvro> consumer, HubEventService service) {
+        this.consumer = consumer;
+        this.service = service;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> { consumer.wakeup(); }));
+    }
+
     @Override
     public void run() {
-        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
         try {
             consumer.subscribe(List.of(topicTelemetryHubs));
             while (true) {

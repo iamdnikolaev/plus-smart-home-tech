@@ -1,6 +1,5 @@
 package ru.yandex.practicum;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -22,7 +21,6 @@ import java.util.Map;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class SnapshotProcessor implements Runnable {
     @Value("${kafka.snapshot-consumer.attempt-timeout}")
     int attemptTimeout;
@@ -33,9 +31,15 @@ public class SnapshotProcessor implements Runnable {
     private final AnalyzerService analyzerService;
     private final HubEventService hubEventService;
 
+    public SnapshotProcessor(Consumer<String, SensorsSnapshotAvro> consumer, AnalyzerService analyzerService, HubEventService hubEventService) {
+        this.consumer = consumer;
+        this.analyzerService = analyzerService;
+        this.hubEventService = hubEventService;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> { consumer.wakeup(); }));
+    }
+
     @Override
     public void run() {
-        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
         try {
             consumer.subscribe(List.of(topicTelemetrySnapshots));
             while (true) {

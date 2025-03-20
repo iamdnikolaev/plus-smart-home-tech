@@ -1,6 +1,5 @@
 package ru.yandex.practicum;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class AggregationStarter {
     @Value("${kafka.attempt-timeout}")
@@ -33,7 +31,13 @@ public class AggregationStarter {
 
     private final KafkaConsumer<String, SensorEventAvro> kafkaConsumer;
     private final KafkaProducer<String, SensorsSnapshotAvro> kafkaProducer;
-    private Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
+    private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
+
+    public AggregationStarter(KafkaConsumer<String, SensorEventAvro> kafkaConsumer, KafkaProducer<String, SensorsSnapshotAvro> kafkaProducer) {
+        this.kafkaConsumer = kafkaConsumer;
+        this.kafkaProducer = kafkaProducer;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> { kafkaConsumer.wakeup(); }));
+    }
 
     public void start() {
         try {
