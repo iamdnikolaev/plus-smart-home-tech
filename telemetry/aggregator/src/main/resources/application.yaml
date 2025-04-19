@@ -1,11 +1,11 @@
-topic:
-  telemetry:
-    sensors: telemetry.sensors.v1
-    hubs: telemetry.hubs.v1
-    snapshots: telemetry.snapshots.v1
-    aggregator-client-id: OurAggregator
-    aggregator-group-id: AggregatorGroupId
-
-kafka:
-  bootstrap-servers: localhost:9092
-  attempt-timeout: 100
+spring:
+  application:
+    name: aggregator
+  config:
+    import: configserver:http://localhost:8888
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        useRandomPolicy: true
+        max-interval: 6000
