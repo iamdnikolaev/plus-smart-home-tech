@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.client.DeliveryClient;
 import ru.yandex.practicum.client.PaymentClient;
 import ru.yandex.practicum.client.ShoppingCartClient;
-import ru.yandex.practicum.client.ShoppingStoreClient;
 import ru.yandex.practicum.client.WarehouseClient;
 import ru.yandex.practicum.dto.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.dto.BookedProductsDto;
@@ -32,11 +31,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final ShoppingCartClient shoppingCartClient;
-    private final ShoppingStoreClient shoppingStoreClient;
     private final WarehouseClient warehouseClient;
     private final PaymentClient paymentClient;
     private final DeliveryClient deliveryClient;
-    private static final String ORDER_NOT_FOUND_MSG = "Order with id=%s not found";
 
     @Override
     @Transactional(readOnly = true)
@@ -83,10 +80,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto returnOrder(ProductReturnRequestDto returnRequest) {
-        Order order = orderRepository.findById(returnRequest.getOrderId())
-                .orElseThrow(() -> new NoOrderFoundException(String.format(
-                        ORDER_NOT_FOUND_MSG, returnRequest.getOrderId()))
-                );
+        Order order = getOrderById(returnRequest.getOrderId());
         warehouseClient.returnProducts(returnRequest.getProducts());
         order.setState(OrderState.PRODUCT_RETURNED);
 
@@ -95,9 +89,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto payOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setState(OrderState.PAID);
 
         return orderMapper.toOrderDto(order);
@@ -105,9 +97,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto payOrderFailed(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setState(OrderState.PAYMENT_FAILED);
 
         return orderMapper.toOrderDto(order);
@@ -115,9 +105,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto deliveryOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setState(OrderState.DELIVERED);
 
         return orderMapper.toOrderDto(order);
@@ -125,9 +113,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto deliveryOrderFailed(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setState(OrderState.DELIVERY_FAILED);
 
         return orderMapper.toOrderDto(order);
@@ -135,9 +121,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto completedOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setState(OrderState.COMPLETED);
 
         return orderMapper.toOrderDto(order);
@@ -145,9 +129,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto calculateTotal(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setTotalPrice(paymentClient.totalCost(orderMapper.toOrderDto(order)));
 
         return orderMapper.toOrderDto(order);
@@ -155,9 +137,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto calculateDelivery(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setDeliveryPrice(deliveryClient.costDelivery(orderMapper.toOrderDto(order)));
 
         return orderMapper.toOrderDto(order);
@@ -165,9 +145,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto assemblyOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setState(OrderState.ASSEMBLED);
 
         return orderMapper.toOrderDto(order);
@@ -175,11 +153,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto assemblyOrderFailed(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NoOrderFoundException(String.format(ORDER_NOT_FOUND_MSG, orderId))
-                );
+        Order order = getOrderById(orderId);
         order.setState(OrderState.ASSEMBLY_FAILED);
 
         return orderMapper.toOrderDto(order);
+    }
+
+    private Order getOrderById(UUID orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoOrderFoundException(String.format("Order not found by id = %s ", orderId))
+                );
     }
 }

@@ -54,9 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void refund(UUID uuid) {
-        Payment payment = paymentRepository.findById(uuid).orElseThrow(
-                () -> new NoPaymentFoundException("Payment with id = " + uuid + " not found")
-        );
+        Payment payment = getPaymentById(uuid);
         payment.setStatus(PaymentStatus.SUCCESS);
         orderClient.payOrder(payment.getOrderId());
     }
@@ -79,9 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void failed(UUID uuid) {
-        Payment payment = paymentRepository.findById(uuid).orElseThrow(
-                () -> new NoPaymentFoundException("Payment with id = " + uuid + " not found")
-        );
+        Payment payment = getPaymentById(uuid);
         payment.setStatus(PaymentStatus.FAILED);
         orderClient.payOrderFailed(payment.getOrderId());
     }
@@ -98,5 +94,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     private double getNDS(double totalPrice) {
         return totalPrice * 0.1;
+    }
+
+    private Payment getPaymentById(UUID paymentId) {
+        return paymentRepository.findById(paymentId).orElseThrow(
+                () -> new NoPaymentFoundException(String.format("Payment not found by id = %s ", paymentId))
+        );
     }
 }

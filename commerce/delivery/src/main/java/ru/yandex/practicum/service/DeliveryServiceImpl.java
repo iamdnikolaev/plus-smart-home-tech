@@ -25,7 +25,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final DeliveryRepository deliveryRepository;
     private final OrderClient orderClient;
     private final WarehouseClient warehouseClient;
-    private static final String DELIVERY_NOT_FOUND_MSG = "Delivery with id=%s not found";
 
     @Override
     public DeliveryDto createDelivery(DeliveryDto deliveryDto) {
@@ -37,18 +36,14 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     public void successfulDelivery(UUID deliveryId) {
-        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(
-                () -> new NoDeliveryFoundException(String.format(DELIVERY_NOT_FOUND_MSG, deliveryId))
-        );
+        Delivery delivery = getDeliveryById(deliveryId);
         delivery.setDeliveryStatus(DeliveryState.DELIVERED);
         orderClient.completedOrder(delivery.getOrderId());
     }
 
     @Override
     public void pickedDelivery(UUID deliveryId) {
-        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(
-                () -> new NoDeliveryFoundException(String.format(DELIVERY_NOT_FOUND_MSG, deliveryId))
-        );
+        Delivery delivery = getDeliveryById(deliveryId);
         delivery.setDeliveryStatus(DeliveryState.IN_PROGRESS);
         orderClient.assemblyOrder(delivery.getOrderId());
         ShippedToDeliveryRequest deliveryRequest = new ShippedToDeliveryRequest(
@@ -59,9 +54,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     public void failedDelivery(UUID deliveryId) {
-        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(
-                () -> new NoDeliveryFoundException(String.format(DELIVERY_NOT_FOUND_MSG, deliveryId))
-        );
+        Delivery delivery = getDeliveryById(deliveryId);
         delivery.setDeliveryStatus(DeliveryState.FAILED);
         orderClient.deliveryOrderFailed(delivery.getOrderId());
     }
@@ -72,7 +65,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         final double baseRate = 5.0;
 
         Delivery delivery = deliveryRepository.findByOrderId(orderDto.getOrderId()).orElseThrow(
-                () -> new NoDeliveryFoundException(String.format(DELIVERY_NOT_FOUND_MSG, orderDto.getOrderId()))
+                () -> new NoDeliveryFoundException(String.format("Delivery not found by orderId = %s",
+                        orderDto.getOrderId()))
         );
 
         AddressDto warehouseAddress = warehouseClient.getAddress();
@@ -93,5 +87,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         return deliveryCost;
+    }
+
+    private Delivery getDeliveryById(UUID deliveryId) {
+        return deliveryRepository.findById(deliveryId).orElseThrow(
+                () -> new NoDeliveryFoundException(String.format("Delivery not found by id = %s", deliveryId))
+        );
     }
 }
