@@ -30,7 +30,7 @@ public class ShoppingCartController {
     public ShoppingCartDto getShoppingCart(@RequestParam String username) {
         log.info("==> Get shopping cart for user {}", username);
         ShoppingCartDto result = shoppingCartService.getShoppingCart(username);
-        log.info("<==> Shopping cart result = {}", result);
+        log.info("<== Shopping cart result = {}", result);
 
         return result;
     }

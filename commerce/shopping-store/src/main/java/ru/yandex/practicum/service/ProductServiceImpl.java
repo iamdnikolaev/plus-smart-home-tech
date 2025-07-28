@@ -24,6 +24,7 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private static final String PRODUCT_NOT_FOUND_MSG = "Product with id=%s not found";
 
     @Override
     @Transactional(readOnly = true)
@@ -46,8 +47,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto updateProduct(ProductDto productDto) {
         Product oldProduct = productRepository.findByProductId(productDto.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product with id = " + productDto.getProductId() + " not found")
+                .orElseThrow(() -> new ProductNotFoundException(String.format(
+                        PRODUCT_NOT_FOUND_MSG, productDto.getProductId()))
                 );
         Product newProduct = productMapper.productDtoToProduct(productDto);
         newProduct.setProductId(oldProduct.getProductId());
@@ -57,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public boolean removeProduct(UUID productId) {
         Product product = productRepository.findByProductId(productId).orElseThrow(
-                () -> new ProductNotFoundException("Product with id = " + productId + " not found")
+                () -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_MSG, productId))
         );
         product.setProductState(ProductState.DEACTIVATE);
         return true;
@@ -67,8 +68,8 @@ public class ProductServiceImpl implements ProductService {
     public boolean updateQuantityState(SetProductQuantityStateRequestDto setProductQuantityStateRequestDto) {
         Product product = productRepository.findByProductId(setProductQuantityStateRequestDto.getProductId())
                 .orElseThrow(
-                        () -> new ProductNotFoundException("Product with id = " +
-                                setProductQuantityStateRequestDto.getProductId() + " not found")
+                        () -> new ProductNotFoundException(String.format(
+                                PRODUCT_NOT_FOUND_MSG, setProductQuantityStateRequestDto.getProductId()))
                 );
         product.setQuantityState(setProductQuantityStateRequestDto.getQuantityState());
         return true;
@@ -78,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public ProductDto getProduct(UUID productId) {
         Product product = productRepository.findByProductId(productId).orElseThrow(
-                () -> new ProductNotFoundException("Product with id = " + productId + " not found")
+                () -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_MSG, productId))
         );
         return productMapper.productToProductDto(product);
     }
